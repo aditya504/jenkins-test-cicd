@@ -1,0 +1,27 @@
+pipeline {
+    agent {label 'node-1'}
+
+    stages {
+        stage('GitSCMCheckout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'beb86476-ef44-4727-aca8-282507844273', url: 'https://adityanv@dev.azure.com/adityanv/test/_git/test']])
+            }
+        }
+        stage('Docker build & Push') {
+            steps {
+                withDockerRegistry(credentialsId: '1e78e09d-beb5-4563-897b-6019bff6f7bf', url: 'https://index.docker.io/v1/') {
+                    sh 'docker build -t aditya199720/sample-jenkins-push-success:2.0 .'
+                    sh 'docker push aditya199720/sample-jenkins-push-success:2.0'
+                }
+            }
+        }
+    }
+    post {
+        success {
+            echo 'success!'
+        }
+        failure {
+            echo 'failure!'
+        }
+    }
+}
